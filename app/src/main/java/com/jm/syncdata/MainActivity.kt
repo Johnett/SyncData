@@ -22,5 +22,10 @@ class MainActivity : AppCompatActivity() {
       val viewIntent = Intent(this,ViewDetailsActivity::class.java)
       startActivity(viewIntent)
     }
+
+    btViewStudent.setOnClickListener {
+      val studentIntent = Intent(this,ViewStudent::class.java)
+      startActivity(studentIntent)
+    }
   }
 }

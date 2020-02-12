@@ -1,8 +1,8 @@
 package com.jm.syncdata
 
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import kotlinx.android.synthetic.main.activity_view.*
 import kotlinx.android.synthetic.main.item_layout.view.*
@@ -11,12 +11,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class ViewDetailsActivity : AppCompatActivity() {
+class ViewStudent : AppCompatActivity() {
 
-  private val viewModel by viewModels<ViewDetailsViewModel>()
+  private val viewModel by viewModels<ViewStudentViewModel>()
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_view)
+    setContentView(R.layout.activity_view_student)
 
     tvTitle.text = "View Temp Details"
 
@@ -44,48 +44,7 @@ class ViewDetailsActivity : AppCompatActivity() {
     }
   }
 
-  private fun populateStudentList(): MutableList<Temp> {
-    val student = Temp(1001, "Kenny Dale", 26)
-    val studentList = mutableListOf<Temp>()
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    studentList.add(student)
-    return studentList
-  }
-
-  private fun addViewToScroll(list: List<Temp>?) {
+  private fun addViewToScroll(list: List<Student>?) {
 //    scrollerContainer.removeAllViews()
     CoroutineScope(Dispatchers.Main).launch {
       var counter = 0

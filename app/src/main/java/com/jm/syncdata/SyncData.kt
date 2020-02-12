@@ -16,18 +16,14 @@ open class SyncData(ctx: Context, params: WorkerParameters) : Worker(ctx, params
   private val compositeDisposable = CompositeDisposable()
   lateinit var viewModel:StudentViewModel
   override fun doWork(): Result {
-    TriggerNotification(appContext, "Sync Data", "Offline data pushing to remote server.")
+    TriggerNotification(appContext, "Sync Data", "${inputData.getString("name")}'s details pushed to server successfully.")
     return try {
       println(
-        "wholeParameterTrail ${inputData.getInt(
-          "id",
-          0
-        )}  ${inputData.getString("name")}  ${inputData.getInt("age",0)}"
+        "wholeParameterTrail ${inputData.getString("name")}  ${inputData.getInt("age",0)}"
       )
       val arg = Temp(
-        inputData.getInt("id", 0),
-        inputData.getString("name"),
-        inputData.getInt("age", 0)
+        nameFUll = inputData.getString("name"),
+        ageTotal = inputData.getInt("age", 0)
       )
       dataBaseInstance.tempDao().insertFromWorker(arg)
       println("resultStatus true")

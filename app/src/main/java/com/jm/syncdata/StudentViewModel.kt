@@ -5,10 +5,7 @@ import androidx.lifecycle.ViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 class StudentViewModel : ViewModel() {
   private val compositeDisposable = CompositeDisposable()
@@ -20,7 +17,7 @@ class StudentViewModel : ViewModel() {
     this.dataBaseInstance = dataBaseInstance
   }
 
-  fun saveDataIntoDb(student: Student):Student {
+  fun saveDataIntoDb(student: Student): Student {
     CoroutineScope(Dispatchers.Default).launch {
       dataBaseInstance?.studentDao()?.insert(student)
         ?.subscribeOn(Schedulers.io())
@@ -55,10 +52,12 @@ class StudentViewModel : ViewModel() {
     }
   }
 
-  fun getCount():Int{
-    return runBlocking {
-       dataBaseInstance?.tempDao()?.getCount()
-    }!!
+  suspend fun getCount(): Int? = withContext(Dispatchers.Default) {
+    try {
+      dataBaseInstance?.tempDao()?.getCount() //slow
+    } catch (e: java.lang.Exception) {
+      null
+    }
   }
 
   fun getAllStudentDetails() {

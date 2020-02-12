@@ -7,7 +7,7 @@ import com.jm.syncdata.Temp.Companion.TABLE_NAME
 
 @Entity(tableName = TABLE_NAME)
 data class Temp(
-  @PrimaryKey
+  @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = ID)
   var userID: Int? = null,
   @ColumnInfo(name = NAME)

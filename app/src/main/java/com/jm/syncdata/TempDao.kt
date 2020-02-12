@@ -11,14 +11,14 @@ interface TempDao {
   @Query("SELECT * from `temp` ORDER BY id ASC")
   fun getAllTemps(): List<Temp>
 
-  @Insert(onConflict = OnConflictStrategy.IGNORE)
+  @Insert(onConflict = OnConflictStrategy.ABORT)
   fun insert(temp: Temp): Completable
 
   @Query("DELETE FROM `temp`")
   suspend fun deleteAll()
 
   @Query("SELECT COUNT(${Temp.ID}) FROM `temp`")
-  suspend fun getCount(): Int
+  fun getCount(): Int
 
   @Insert(onConflict = OnConflictStrategy.ABORT)
   fun insertFromWorker(temp: Temp)

@@ -1,14 +1,15 @@
 package com.jm.syncdata
 
 import android.content.Context
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.work.*
 import kotlinx.android.synthetic.main.activity_student.*
 import kotlinx.coroutines.CoroutineScope
@@ -19,17 +20,17 @@ import java.util.concurrent.TimeUnit
 
 class StudentActivity : AppCompatActivity() {
 
-  private var viewModel: StudentViewModel? = null
+  private val viewModel by viewModels<StudentViewModel>()
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_student)
 
     tvTitle.text = "Add Details"
 
-    viewModel = ViewModelProviders.of(this).get(StudentViewModel::class.java)
+//    viewModel = ViewModelProviders.of(this).get(StudentViewModel::class.java)
     val dataBaseInstance = AppDataBase.getDatabaseInstance(this)
 
-    viewModel?.studentList?.observe(this, Observer {
+    viewModel.studentList.observe(this, Observer {
       if (!it.isNullOrEmpty()) {
         println("status_meta not even here ${it.size}")
         it.forEach { student ->
@@ -45,7 +46,7 @@ class StudentActivity : AppCompatActivity() {
       }
     })
 
-    viewModel?.tempList?.observe(this, Observer {
+    viewModel.tempList.observe(this, Observer {
       if (!it.isNullOrEmpty()) {
         println("status_meta not even here ${it.size}")
         it.forEach { student ->
@@ -64,43 +65,49 @@ class StudentActivity : AppCompatActivity() {
     toolBarInitialization(toolbar)
 
     btSubmit.setOnClickListener {
-      when {
-        etName.text.isNullOrEmpty() -> {
-          etName.error = "Please enter a valid name"
-        }
-        etAge.text.isNullOrEmpty() -> {
-          etAge.error = "Please enter a valid age"
-        }
-        else -> {
-          val student =
-            Student(nameFUll = etName?.text.toString(), ageTotal = etAge?.text.toString().toInt())
-          viewModel?.setInstanceOfDb(dataBaseInstance)
-          val count = viewModel?.getCount()?.plus(1)
-          val studentDetails = workDataOf(
-            "id" to count,
-            "name" to student.nameFUll,
-            "age" to student.ageTotal
-          )
-          println("total_count ${viewModel?.getCount()}")
-          if(isInternetAvailable(this)) {
-            viewModel?.saveDataIntoDb(student)
-            val arg = Temp(
-              studentDetails.getInt("id", 0),
-              studentDetails.getString("name"),
-              studentDetails.getInt("age", 0)
-            )
-            viewModel?.saveDataIntoTempDb(arg)
-            clear()
-          }else{
-            val constraints =
-              Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
-            val syncWork = OneTimeWorkRequest.Builder(SyncData::class.java)
-              .setConstraints(constraints)
-              .setInputData(studentDetails)
-              .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 20, TimeUnit.SECONDS)
-              .build()
 
-            WorkManager.getInstance(this).enqueue(syncWork)
+      CoroutineScope(Dispatchers.Main).launch {
+        when {
+          etName.text.isNullOrEmpty() -> {
+            etName.error = "Please enter a valid name"
+          }
+          etAge.text.isNullOrEmpty() -> {
+            etAge.error = "Please enter a valid age"
+          }
+          else -> {
+            val student =
+              Student(nameFUll = etName?.text.toString(), ageTotal = etAge?.text.toString().toInt())
+            viewModel.setInstanceOfDb(dataBaseInstance)
+            val count = viewModel.getCount()?.plus(1)
+            val studentDetails = workDataOf(
+              "name" to student.nameFUll,
+              "age" to student.ageTotal
+            )
+            println("total_count ${viewModel.getCount()}")
+            if (isInternetAvailable(baseContext)) {
+              viewModel.saveDataIntoDb(student)
+              val arg = Temp(
+                nameFUll = studentDetails.getString("name"),
+                ageTotal = studentDetails.getInt("age", 0)
+              )
+              viewModel.saveDataIntoTempDb(arg)
+              tvAlert.text = getString(R.string.api_success)
+              tvAlert.setTextColor(Color.parseColor("#20A222"))
+              clear()
+            } else {
+              val constraints =
+                Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+              val syncWork = OneTimeWorkRequest.Builder(SyncData::class.java)
+                .setConstraints(constraints)
+                .setInputData(studentDetails)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 20, TimeUnit.SECONDS)
+                .build()
+
+              WorkManager.getInstance(baseContext).enqueue(syncWork)
+              clear()
+              tvAlert.text = getString(R.string.api_failed)
+              tvAlert.setTextColor(Color.parseColor("#FF5252"))
+            }
           }
         }
       }
@@ -108,10 +115,10 @@ class StudentActivity : AppCompatActivity() {
 
     btDebug.setOnClickListener {
       CoroutineScope(Dispatchers.Main).launch {
-//        viewModel?.setInstanceOfDb(dataBaseInstance)
+        //        viewModel?.setInstanceOfDb(dataBaseInstance)
 //        viewModel?.getAllStudentDetails()
-        viewModel?.setInstanceOfDb(dataBaseInstance)
-        viewModel?.getAllTempDetails()
+        viewModel.setInstanceOfDb(dataBaseInstance)
+        viewModel.getAllTempDetails()
       }
     }
   }
